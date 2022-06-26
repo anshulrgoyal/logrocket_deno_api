@@ -15,11 +15,11 @@ export default async ({ params, request, response }) => {
 		return;
 	}
 
-	const {
-		value: { name, brand, is_premium }
-	} = await request.body();
+	const body =  request.body();
 
-	await updateBeer(beerId, { name, brand, is_premium });
+	const beer = await body.value
+
+	await updateBeer(beerId, beer);
 
 	response.body = { msg: "Beer updated" };
 };

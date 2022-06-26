@@ -3,31 +3,21 @@ import beerRepo from "../repositories/beerRepo.js";
 export const getBeers = async () => {
 	const beers = await beerRepo.selectAll();
 
-	var result = new Array();
-
-	beers.rows.map(beer => {
-		var obj = new Object();
-
-		beers.rowDescription.columns.map((el, i) => {
-			obj[el.name] = beer[i];
-		});
-		result.push(obj);
+	return beers.rows.map(beer => {
+		return 	beers.rowDescription.columns.reduce((acc,el, i) => {
+			acc[el.name] = beer[i];
+			return acc
+		},{});
 	});
-
-	return result;
 };
 
 export const getBeer = async beerId => {
-	const beers = await beerRepo.selectById(beerId);
-
-	var obj = new Object();
-	beers.rows.map(beer => {
-		beers.rowDescription.columns.map((el, i) => {
-			obj[el.name] = beer[i];
-		});
-	});
-
-	return obj;
+	const beers = await beerRepo.selectById(beerId)
+	if(!beers || beers?.length===0) return null
+	return beers.rowDescription.columns.reduce((acc,el, i) => {
+			acc[el.name] = beers.rows[0][i];
+			return acc
+		},{});
 };
 
 export const createBeer = async beerData => {
@@ -46,18 +36,12 @@ export const createBeer = async beerData => {
 export const updateBeer = async (beerId, beerData) => {
 	const beer = await getBeer(beerId);
 
+
 	if (Object.keys(beer).length === 0 && beer.constructor === Object) {
 		throw new Error("Beer not found");
 	}
 
-	const updatedBeer = {
-		name: beerData.name !== undefined ? String(beerData.name) : beer.name,
-		brand: beerData.brand !== undefined ? String(beerData.brand) : beer.brand,
-		is_premium:
-			beerData.is_premium !== undefined
-				? Boolean(beerData.is_premium)
-				: beer.is_premium
-	};
+	const updatedBeer = {...beer,...beerData};
 
 	beerRepo.update(beerId, updatedBeer);
 };

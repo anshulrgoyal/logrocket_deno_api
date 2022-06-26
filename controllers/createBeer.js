@@ -7,9 +7,10 @@ export default async ({ request, response }) => {
     return;
   }
 
+  const body = request.body();
   const {
-    value: { name, brand, is_premium }
-  } = await request.body();
+     name, brand, is_premium
+  } = await body.value
 
   if (!name || !brand) {
     response.status = 422;
